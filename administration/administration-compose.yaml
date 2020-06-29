@@ -15,10 +15,6 @@ services:
             ZK_HOSTS: "192.168.0.67:2181,192.168.0.67:2182,192.168.0.67:2183"
             APPLICATION_SECRET: "random-secret"
         command: -Dpidfile.path=/dev/null
-    #xinfra_monitor:
-    #    image: xinfra:0.0.1
-    #    ports:
-    #        - "8000:8000"
-    #        - "8778:8778"
+
 
     

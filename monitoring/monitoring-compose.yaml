@@ -30,3 +30,14 @@ services:
               memory: 500M
         depends_on:
             - prometheus
+#    xinfra_monitor:
+#      build: XinfraMonitor
+#      image: xinfra:0.0.1
+#      ports:
+#          - "8000:8000"
+#          - "8778:8778"
+#      deploy:
+#        resources:
+#          limits:
+#            cpus: '0.25'
+#            memory: 500M
