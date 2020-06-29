@@ -1,0 +1,171 @@
+version: '3.1'
+services:
+  zoo1:
+    build: zookeeper-jmx-exporter
+    image: zookeeper-jmx-exporter:0.0.1
+    # restart: always
+    hostname: zoo1
+    ports:
+      - 2181:2181
+      - 1098:1099
+      - 3001:8080
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+      #JVMFLAGS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=192.168.0.67 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.port=1099"
+      JVMFLAGS: -javaagent:/opt/jmx-exporter/java-exporter.jar=8080:/opt/jmx-exporter/zookeeper-jmx-config.yml
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 500M
+  
+  zoo2:
+    build: zookeeper-jmx-exporter
+    image: zookeeper-jmx-exporter:0.0.1
+    # restart: always
+    hostname: zoo2
+    ports:
+    - 2182:2181
+    - 2098:1099
+    - 3002:8080
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=0.0.0.0:2888:3888;2181 server.3=zoo3:2888:3888;2181
+      #JVMFLAGS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=192.168.0.67 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.port=1099" 
+      JVMFLAGS: -javaagent:/opt/jmx-exporter/java-exporter.jar=8080:/opt/jmx-exporter/zookeeper-jmx-config.yml
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 500M
+  
+  zoo3:
+    build: zookeeper-jmx-exporter
+    image: zookeeper-jmx-exporter:0.0.1
+    # restart: always
+    hostname: zoo3
+    ports:
+    - 2183:2181
+    - 3098:1099
+    - 3003:8080
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=0.0.0.0:2888:3888;2181
+      #JVMFLAGS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=192.168.0.67 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.port=1099"
+      JVMFLAGS: -javaagent:/opt/jmx-exporter/java-exporter.jar=8080:/opt/jmx-exporter/zookeeper-jmx-config.yml
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 500M
+  
+  kafka1:
+    build: kafka-jmx-exporter
+    image: kafka-jmx-exporter:0.0.1
+    hostname: kafka1
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    ports:
+      - "9092"
+      - "9094:9094"
+      - "1099:1099"
+      - "2001:8080"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9094
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181,zoo2:2182,zoo3:2181
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.0.67 -Dcom.sun.management.jmxremote.rmi.port=1099"
+      KAFKA_OPTS: -javaagent:/opt/jmx-exporter/java-exporter.jar=8080:/opt/jmx-exporter/kafka-jmx-config.yml
+      JMX_PORT: 1099      
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 1000M
+    
+  kafka2:
+    build: kafka-jmx-exporter
+    image: kafka-jmx-exporter:0.0.1
+    hostname: kafka2
+    depends_on:
+        - zoo1
+        - zoo2
+        - zoo3
+    ports:
+      - "9092"
+      - "9096:9096"
+      - "2099:1099"
+      - "2002:8080"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9096
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://192.168.0.67:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181,zoo2:2182,zoo3:2181
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.0.67 -Dcom.sun.management.jmxremote.rmi.port=1099"
+      KAFKA_OPTS: -javaagent:/opt/jmx-exporter/java-exporter.jar=8080:/opt/jmx-exporter/kafka-jmx-config.yml
+      JMX_PORT: 1099
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 1000M
+
+  kafka3:
+    build: kafka-jmx-exporter
+    image: kafka-jmx-exporter:0.0.1
+    hostname: kafka3
+    depends_on:
+        - zoo1
+        - zoo2
+        - zoo3
+    ports:
+        - "9092"
+        - "9098:9098"
+        - "3099:1099"
+        - "2003:8080"
+    environment:
+        KAFKA_BROKER_ID: 3
+        KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9098
+        KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://192.168.0.67:9098
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+        KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+        KAFKA_ZOOKEEPER_CONNECT: zoo1:2181,zoo2:2182,zoo3:2181
+        KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.0.67 -Dcom.sun.management.jmxremote.rmi.port=1099"
+        KAFKA_OPTS: -javaagent:/opt/jmx-exporter/java-exporter.jar=8080:/opt/jmx-exporter/kafka-jmx-config.yml
+        JMX_PORT: 1099
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 1000M
+
+  kafka-connect:
+    build: kafka-connect-jmx-exporter
+    image: kafka-connect-jmx-exporter:0.0.1
+    depends_on:
+        - kafka1
+        - kafka2
+        - kafka3
+    ports:
+        - 8083:8083
+        - 8084:8084
+        - 4099:1099
+        - 4001:8080
+    environment: 
+        BOOTSTRAP_SERVERS: kafka1:9094,kafka2:9096,kafka3:9098
+        GROUP_ID: kafka-connect-cluster-docker
+        KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.0.67 -Dcom.sun.management.jmxremote.rmi.port=1099"
+        KAFKA_OPTS: -javaagent:/opt/jmx-exporter/java-exporter.jar=8080:/opt/jmx-exporter/kafka-connect-jmx-config.yml
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 500M
