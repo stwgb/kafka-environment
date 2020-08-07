@@ -5,17 +5,17 @@ scrape_configs:
     - job_name: 'kafka'
       static_configs: 
         - targets:
-            - 192.168.0.67:2001 # kafka 1
-            - 192.168.0.67:2002 # kafka 2
-            - 192.168.0.67:2003 # kafka 3
+            - 192.168.0.199:2001 # kafka 1
+            - 192.168.0.199:2002 # kafka 2
+            - 192.168.0.199:2003 # kafka 3
     - job_name: 'zookeeper'
       static_configs: 
         - targets:
-            - 192.168.0.67:3001 # zookeeper 1
-            - 192.168.0.67:3002 # zookeeper 2
-            - 192.168.0.67:3003 # zoopeeker 3  
+            - 192.168.0.199:3001 # zookeeper 1
+            - 192.168.0.199:3002 # zookeeper 2
+            - 192.168.0.199:3003 # zoopeeker 3  
     - job_name: 'kafka-connect'
       static_configs: 
         - targets:
-            - 192.168.0.67:4001 # kafka-connect 1
+            - 192.168.0.199:4001 # kafka-connect 1
   
