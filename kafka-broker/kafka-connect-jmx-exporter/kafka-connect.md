@@ -73,6 +73,8 @@ Workers are kafka-connect-servers which execute the connectors and tasks. Worker
     2. Define your configuration properties
     3. Create Connector which load the config and starts tasks
     4. Create a schema for the data
+    5. Source partition and source offsets
+    6. Create the task
 
 ### 2 Define configuration
 
@@ -284,7 +286,41 @@ public class GithubSchema {
             .build();
 }
 ```
+### 5 Source Partitions and Source Offsets
+
+Connector are stateless, to save the state you need to track paritions and offsets (these partitions have nothing to do with kafka, they are referenced to the source of the data)
+
+Source partitions enables kafka connect to store the data source (where the data came from). 
 
 
+Source offsets allow to track the position the connector has stopped reading. 
 
+These setting must be setup in the task and called in the SourceRecord 
 
+```java
+
+    // Github repo as source
+    private Map<String, String> sourcePartition() {
+        Map<String, String> map = new HashMap<>();
+        map.put(OWNER_FIELD, config.getOwnerConfig());
+        map.put(REPOSITORY_FIELD, config.getRepoConfig());
+        return map;
+    }
+    // last fetch of data
+    private Map<String, String> sourceOffset(Instant updatedAt) {
+        Map<String, String> map = new HashMap<>();
+        map.put(UPDATED_AT_FIELD, DateUtils.MaxInstant(updatedAt, nextQuerySince).toString());
+        map.put(NEXT_PAGE_FIELD, nextPageToVisit.toString());
+        return map;
+    }
+```
+### 6 Creating the Task
+
+Last step is to implement the task, which does the actual work.
+The interface comes with:
+
+- version ->  the version of the task -> should be same as the version of the connector 
+- start -> starting the task -> init the configuration of the task
+- poll -> called continuously  -> polls data from source and put into kafka
+- taskConfigs -> list of configs for the task -> return an array list with the configuration of your task.
+- stop -> stopping the connector -> close connections if needed eg databases
