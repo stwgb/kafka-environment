@@ -13,7 +13,7 @@ scrape_configs:
         - targets:
             - 192.168.0.199:3001 # zookeeper 1
             - 192.168.0.199:3002 # zookeeper 2
-            - 192.168.0.199:3003 # zoopeeker 3  
+            - 192.168.0.199:3003 # zookeeper 3
     - job_name: 'kafka-connect'
       static_configs: 
         - targets:
