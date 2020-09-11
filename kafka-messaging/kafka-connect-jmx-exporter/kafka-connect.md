@@ -2,7 +2,15 @@
 
 ## Motivation - Why Kafka-Connect
 
-Kafka-Connect enables to connect source- and sink-systems to your kafka-cluster without touching these systems. In example storing data in a database. You do not have to write a consumer to get the data out of kafka and writes it to the database. Kafka-connect gives you the possibility to launch a connector which uses kafka-connect-apis to get the data out of kafka and stores it in the database. If you have to write a connector you use the kafka-connect-apis to interact with kafka and you implement the code you need to interact with the system. To connector more system you can start more connectors and the data-pipeline is up. In addition to that source- and sink-system are often the same and there are a lot of programmer who made up there mind about fault-tolerance, exactly-once, distribution, ordering, etc and implemented a connector for those system. You can use these connector and launch them with your configurations, because of the kafka-connect-framework those connectors are highly configurable. 
+Kafka-Connect enables to connect source- and sink-systems to your kafka-cluster without touching these systems. 
+In example storing data in a database. You do not have to write a consumer to get the data out of kafka and writes it to the database. 
+Kafka-connect gives you the possibility to launch a connector which uses kafka-connect-apis to get the data out of kafka and stores it in the database. 
+If you have to write a connector you can use the kafka-connect-apis to interact with kafka, and 
+you implement the code you need to interact with the system. To connect more systems you can start more 
+connectors, and the data-pipeline is up. In addition to that source- and sink-system are often the same and there are 
+lots of programmers who made up there mind about fault-tolerance, exactly-once, distribution, ordering, etc and implemented 
+a connector for those systems. You can use these connectors and launch them with your configurations, because of the 
+kafka-connect-framework those connectors are highly configurable. 
 
 ## Kafka-Connect Concepts
 
@@ -12,7 +20,8 @@ Kafka-Connect enables to connect source- and sink-systems to your kafka-cluster 
 
 ### Connectors
 
-Each kafka-connect-cluster has a least one single connector. A connector is re-usable and differs in the configuration. Connectors are responsible for:
+Each kafka-connect-cluster has at least one single connector. A connector is re-usable and differs in the configuration. 
+Connectors are responsible for:
 
 - The amount of tasks for the connector.
 - Splitting work between tasks.
@@ -28,11 +37,18 @@ Sink-connectors fetch the data from a kafka-cluster and publish the data into a 
 
 #### Task
 
-A task is a connector with a configuration. Tasks are responsible to get the data in and out from kafka. The source connectors tasks allowing storing offsets and the sink connectors tasks allowing the handling of back-pressure, retrying and storing offsets for exactly-once delivery. The configuration gets loaded in the start-up of the task. A configuration may create multiple tasks.
+A task is a connector with a configuration. Tasks are responsible to get the data in and out from kafka. 
+The source connectors tasks allow storing offsets, and the sink connectors tasks allowing the handling of back-pressure, 
+retrying and storing offsets for exactly-once delivery. The configuration gets loaded in the start-up of the task. 
+A configuration may create multiple tasks.
 
 #### Workers
 
-Workers are kafka-connect-servers which execute the connectors and tasks. Workers also take http-request (eg. defining connectors) and handle them. Also they store the connector configuration, launch the connectors and theirs tasks. If a workers goes down the other worker will recognize it and reassign the connector with their tasks. When a worker joins the cluster the task also get reassigned to load balance the work. Another job of the worker is to commit the offsets (for source and sink).
+Workers are kafka-connect-servers which execute the connectors and tasks. Workers also take http-requests 
+(eg. defining connectors) and handle them. They also store the connector configuration, launch the connectors and 
+theirs tasks. If a workers goes down the other worker will recognize it and reassign the connector with their tasks. 
+When a worker joins the cluster the task also gets reassigned to load balance the work. Another job of the worker is to 
+commit the offsets (for source and sink).
 
 #### Conclusion
 
@@ -69,7 +85,7 @@ Workers are kafka-connect-servers which execute the connectors and tasks. Worker
     - AbstractConfig
 
 3. Follow the steps:
-    1. create in config dir a .properties file and name link the connector
+    1. create in config dir a `.properties` file and name link the connector
     2. Define your configuration properties
     3. Create Connector which load the config and starts tasks
     4. Create a schema for the data
@@ -158,7 +174,7 @@ You have to implement:
 Then add a Logger and the connectorConfig as private properties. 
 
 - version ->  the version of the connector -> Create a class eg Version util which returns the version and call it in the version method
-- start -> starting the connector -> init the configuration of the connector, by calling the constructor of the Config class and assign it to the config property. Abf open connections if needed eg databases
+- start -> starting the connector -> init the configuration of the connector, by calling the constructor of the Config class and assign it to the config property. Open connections if needed eg databases
 - taskClass -> return the class of the connector -> return the class which implements the task.
 - taskConfigs -> list of configs for the task -> return an array list with the configuration of your task.
 - stop -> stopping the connector -> close connections if needed eg databases
@@ -288,7 +304,8 @@ public class GithubSchema {
 ```
 ### 5 Source Partitions and Source Offsets
 
-Connector are stateless, to save the state you need to track paritions and offsets (these partitions have nothing to do with kafka, they are referenced to the source of the data)
+Connectors are stateless, to save the state you need to track partitions and offsets 
+(these partitions have nothing to do with kafka, they are referenced to the source of the data)
 
 Source partitions enables kafka connect to store the data source (where the data came from). 
 

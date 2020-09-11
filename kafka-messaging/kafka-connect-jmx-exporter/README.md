@@ -1,5 +1,7 @@
 # KafkaConnect
 
+Docker-Image for Kafka-Connect with the [jmx-exporter](https://github.com/prometheus/jmx_exporter) from prometheus.
+
 ## Configurations
 
 - BOOTSTRAP_SERVERS
@@ -44,3 +46,5 @@
 
 
 ## Adding Connectors
+
+You can add connectors by adding them to the Docker-Image or by mounting `/opt/connectors`. 
